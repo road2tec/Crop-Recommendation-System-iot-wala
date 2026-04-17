@@ -159,7 +159,7 @@ const IoTPanel = ({ onSensorValuesChange, onConnectionChange }) => {
     // Enter waiting mode
     setIsWaitingForConnection(true);
     setConnectionProgress(0);
-    showToast('⏳ Waiting for device... Move mouse, press a key, or plug in a USB device', 'info');
+    showToast('⏳ Waiting for device... Move mouse, press a key, or plug in aIOT device', 'info');
 
     // Start a scanning animation progress bar
     let progress = 0;

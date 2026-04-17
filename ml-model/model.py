@@ -9,6 +9,7 @@ import pickle
 import numpy as np
 import os
 import subprocess
+import sys
 
 app = FastAPI(
     title="Crop Recommendation ML API",
@@ -63,7 +64,7 @@ async def startup_event():
     try:
         iot_script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'start_iot_sensor.py')
         if os.path.exists(iot_script_path):
-            subprocess.Popen(['python', 'start_iot_sensor.py'], cwd=os.path.dirname(os.path.dirname(__file__)))
+            subprocess.Popen([sys.executable, iot_script_path], cwd=os.path.dirname(os.path.dirname(__file__)))
             print("IoT sensor script auto-started.")
         load_model()
     except FileNotFoundError as e:

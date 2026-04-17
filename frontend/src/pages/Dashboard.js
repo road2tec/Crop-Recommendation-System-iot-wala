@@ -333,6 +333,15 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-green-600">🌱 CropAdvisor</h1>
           <div className="flex items-center space-x-4">
+            <a
+              href="http://192.168.1.4/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
+              title="Open IoT Sensor Dashboard (192.168.1.4) — same network required"
+            >
+              📡 Sensor Reading
+            </a>
             <button
               onClick={() => navigate('/iot-sensor')}
               className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium flex items-center gap-2"

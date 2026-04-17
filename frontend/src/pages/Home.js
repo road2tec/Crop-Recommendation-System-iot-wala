@@ -55,12 +55,14 @@ const Home = () => {
             Get intelligent crop recommendations based on your soil parameters and local climate data.
             Powered by Machine Learning for accurate predictions.
           </p>
-          <Link
-            to="/register"
-            className="inline-block px-8 py-4 bg-green-500 text-white text-lg font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-lg"
-          >
-            Get Started Free
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/register"
+              className="inline-block px-8 py-4 bg-green-500 text-white text-lg font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-lg"
+            >
+              Get Started Free
+            </Link>
+          </div>
         </div>
 
         {/* Features */}

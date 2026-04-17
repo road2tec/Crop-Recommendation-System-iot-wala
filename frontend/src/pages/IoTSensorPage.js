@@ -157,7 +157,7 @@ const IoTSensorPage = () => {
   }, []);
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // LOCAL WINDOWS WMI SERVER POLLING (Detects ANY USB device plugged in)
+  // LOCAL WINDOWS WMI SERVER POLLING (Detects ANYIOT device plugged in)
   // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     const pollInterval = setInterval(async () => {

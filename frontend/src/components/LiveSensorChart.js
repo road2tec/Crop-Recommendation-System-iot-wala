@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -28,7 +28,7 @@ const LiveSensorChart = ({ sensorValues, isConnected, apiClimate }) => {
     timestamps: []
   });
   const [maxDataPoints] = useState(20); // Show last 20 readings
-  const dataRef = useRef(chartData);
+  const latestValuesRef = useRef({ temperature: null, humidity: null });
 
   const toValidNumber = (value) => {
     const n = Number(value);
@@ -44,12 +44,7 @@ const LiveSensorChart = ({ sensorValues, isConnected, apiClimate }) => {
     ? 'Weather API'
     : 'IoT Sensor';
 
-  // Update chart data when climate values change
-  useEffect(() => {
-    if (!isConnected || climateValues.temperature == null || climateValues.humidity == null) {
-      return;
-    }
-
+  const appendPoint = useCallback((temperature, humidity) => {
     const now = new Date();
     const timeLabel = now.toLocaleTimeString('en-US', { 
       hour12: false,
@@ -65,11 +60,11 @@ const LiveSensorChart = ({ sensorValues, isConnected, apiClimate }) => {
 
       // If another update arrives in the same second, refresh the latest point.
       if (lastIndex >= 0 && newData.timestamps[lastIndex] === timeLabel) {
-        newData.temperature[lastIndex] = climateValues.temperature;
-        newData.humidity[lastIndex] = climateValues.humidity;
+        newData.temperature[lastIndex] = temperature;
+        newData.humidity[lastIndex] = humidity;
       } else {
-        newData.temperature.push(climateValues.temperature);
-        newData.humidity.push(climateValues.humidity);
+        newData.temperature.push(temperature);
+        newData.humidity.push(humidity);
         newData.timestamps.push(timeLabel);
       }
       
@@ -79,11 +74,40 @@ const LiveSensorChart = ({ sensorValues, isConnected, apiClimate }) => {
         newData.humidity = newData.humidity.slice(-maxDataPoints);
         newData.timestamps = newData.timestamps.slice(-maxDataPoints);
       }
-      
-      dataRef.current = newData;
+
       return newData;
     });
-  }, [climateValues.temperature, climateValues.humidity, isConnected, maxDataPoints]);
+  }, [maxDataPoints]);
+
+  // Keep latest value snapshot in a ref for interval-based chart updates.
+  useEffect(() => {
+    latestValuesRef.current = {
+      temperature: climateValues.temperature,
+      humidity: climateValues.humidity,
+    };
+  }, [climateValues.temperature, climateValues.humidity]);
+
+  // Continuously add chart points while connected so the graph doesn't look empty/static.
+  useEffect(() => {
+    if (!isConnected) {
+      return;
+    }
+
+    const { temperature, humidity } = latestValuesRef.current;
+    if (temperature != null && humidity != null) {
+      appendPoint(temperature, humidity);
+    }
+
+    const intervalId = setInterval(() => {
+      const current = latestValuesRef.current;
+      if (current.temperature == null || current.humidity == null) {
+        return;
+      }
+      appendPoint(current.temperature, current.humidity);
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [isConnected, appendPoint]);
 
   // Clear data when disconnected
   useEffect(() => {
@@ -226,6 +250,30 @@ const LiveSensorChart = ({ sensorValues, isConnected, apiClimate }) => {
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             LIVE
           </span>
+          <a
+            href="http://192.168.1.4/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              backgroundColor: '#4f46e5',
+              color: '#fff',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '700',
+              textDecoration: 'none',
+              boxShadow: '0 2px 8px rgba(79,70,229,0.35)',
+              transition: 'background 0.2s, transform 0.1s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#4338ca'; e.currentTarget.style.transform = 'scale(1.04)'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#4f46e5'; e.currentTarget.style.transform = 'scale(1)'; }}
+            title="Open IoT Sensor Dashboard at 192.168.1.4"
+          >
+            📡 Open IoT Dashboard
+          </a>
         </div>
       </div>
 
